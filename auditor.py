@@ -6,8 +6,12 @@ while True:
     if user_input == "quit":
         break
 
-    if user_input.isdigit():
+    if user_input.lstrip('-').isdigit():
         quantity = int(user_input)
-        print(f"You Entered: {quantity}")
+        if quantity < 0:
+            print("Error: Negative numbers are not allowed")
+        else:
+            print(f"You Entered: {quantity}")
+
     else:
         print("Error: please enter a valid number.")
