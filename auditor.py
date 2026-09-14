@@ -11,7 +11,8 @@ while True:
         if quantity < 0:
             print("Error: Negative numbers are not allowed")
         else:
-            print(f"You Entered: {quantity}")
+            inventory = inventory + quantity
+            print(f"You Entered: {quantity}. Total inventory: {inventory}")
 
     else:
         print("Error: please enter a valid number.")
