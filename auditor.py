@@ -14,5 +14,9 @@ while True:
             inventory = inventory + quantity
             print(f"You Entered: {quantity}. Total inventory: {inventory}")
 
+            if inventory > 500:
+                print("OVERSTOCK!, Total inventory has exceeded 500 units.")
+                break
+
     else:
         print("Error: please enter a valid number.")
