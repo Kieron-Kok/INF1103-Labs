@@ -1,7 +1,8 @@
 inventory = 0
 delivery_processed = 0
 failed_entries = 0
-delivery_tax = 1.5
+delivery_tax = 0.1
+total_tax = 0
 
 def get_valid_input():
     user_input = input("Enter stock quantity (or 'quit' to finish): ").strip()
@@ -22,6 +23,8 @@ def get_valid_input():
 def process_delivery(current_total,new_value):
     return current_total + new_value
 
+def calculate_tax(amount):
+     return amount * delivery_tax
 
 while True:
     user_input = get_valid_input()
@@ -34,6 +37,8 @@ while True:
     else:
             inventory = process_delivery(inventory, user_input)
             print(f"You Entered: {user_input}. Total inventory: {inventory}")
+            tax = calculate_tax(user_input)
+            total_tax += tax
             delivery_processed += 1
             if inventory > 500:
                 print("OVERSTOCK!, Total inventory has exceeded 500 units.")
@@ -41,5 +46,5 @@ while True:
 
 print(f"Total Units Processed: {inventory}")
 print(f"Total Deliveries: {delivery_processed}")
-print(f"Total Delivery Amount: ${delivery_processed*delivery_tax}")
+print(f"Total Delivery Amount: ${total_tax:.2f}")
 print(f"Number of Failed entries: {failed_entries}")
