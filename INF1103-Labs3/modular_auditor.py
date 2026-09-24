@@ -26,6 +26,10 @@ def process_delivery(current_total,new_value):
 def calculate_tax(amount):
      return amount * delivery_tax
 
+def generate_report(total_deliveries, total_units):
+    print(f"Total Units Processed: {total_units}")
+    print(f"Total Deliveries: {total_deliveries}")
+
 while True:
     user_input = get_valid_input()
 
@@ -44,7 +48,6 @@ while True:
                 print("OVERSTOCK!, Total inventory has exceeded 500 units.")
                 break
 
+generate_report(delivery_processed, inventory)
 print(f"Total Units Processed: {inventory}")
-print(f"Total Deliveries: {delivery_processed}")
-print(f"Total Delivery Amount: ${total_tax:.2f}")
-print(f"Number of Failed entries: {failed_entries}")
+print(f"Total Tax Collected: ${total_tax:.2f}")
