@@ -92,3 +92,5 @@ while True:
 
 generate_report(delivery_processed, inventory, history)
 print(f"Total Tax Collected: ${total_tax:.2f}")
+
+print(f"Input successfully saved to inventory.txt")
