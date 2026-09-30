@@ -1,6 +1,7 @@
 import json
 
 INVENTORY_FILE = "inventory.json"
+REPORT_FILE = "inventory.txt"
 
 inventory = 0
 delivery_processed = 0
@@ -8,6 +9,11 @@ failed_entries = 0
 delivery_tax = 0.1
 total_tax = 0
 history = []
+
+def write_back(inventory, history):
+    with open(REPORT_FILE, "w") as file:
+        file.write(f"Total Units Processed: {inventory}\n")
+        file.write(f"Transaction History: {history}\n")
 
 def load_inventory():
      try:
@@ -65,6 +71,7 @@ while True:
     user_input = get_valid_input()
 
     if user_input == "quit":
+        write_back(inventory, history)
         break
     if user_input == "invalid":
             failed_entries += 1
