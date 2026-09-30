@@ -1,7 +1,9 @@
 import json
+import os
 
-INVENTORY_FILE = "inventory.json"
-REPORT_FILE = "inventory.txt"
+DATA_DIR = os.environ.get("DATA_DIR", ".")
+os.makedirs(DATA_DIR, exist_ok=True)
+INVENTORY_FILE = os.path.join(DATA_DIR, "inventory.txt")
 
 inventory = 0
 delivery_processed = 0
@@ -9,11 +11,6 @@ failed_entries = 0
 delivery_tax = 0.1
 total_tax = 0
 history = []
-
-def write_back(inventory, history):
-    with open(REPORT_FILE, "w") as file:
-        file.write(f"Total Units Processed: {inventory}\n")
-        file.write(f"Transaction History: {history}\n")
 
 def load_inventory():
      try:
@@ -71,7 +68,7 @@ while True:
     user_input = get_valid_input()
 
     if user_input == "quit":
-        write_back(inventory, history)
+        save_inventory(inventory, delivery_processed, total_tax, history)
         break
     if user_input == "invalid":
             failed_entries += 1
@@ -93,4 +90,4 @@ while True:
 generate_report(delivery_processed, inventory, history)
 print(f"Total Tax Collected: ${total_tax:.2f}")
 
-print(f"Input successfully saved to inventory.txt")
+print("Input successfully saved to inventory.txt")
