@@ -1,70 +1,68 @@
 import json
+import os
+
+FILENAME = "inventory.json"
+
+DEFAULT_PRODUCT_LIST = {
+    "P001": {"name": "Laptop", "price": 1200.00, "stock": 0},
+    "P002": {"name": "Mouse", "price": 25.50, "stock": 0},
+    "P003": {"name": "Keyboard", "price": 45.00, "stock": 0},
+    "P004": {"name": "Monitor", "price": 299.99, "stock": 0},
+}
 
 def load_inventory():
-    try:
-        with open("inventory.json", "r") as file:
-            product_list = json.load(file)
-            return json.loads(json.dumps(product_list))
-    except FileNotFoundError:
-        return 0, 0, 0, 0
+    if os.path.exists(FILENAME):
+        try:
+            with open(FILENAME, "r") as file:
+                product_list = json.load(file)
+                print("Inventory loaded successfully.")
+                return product_list
+        except json.JSONDecodeError:
+            print(f"{FILENAME} is not a valid JSON file. Starting with default inventory.")
+    else:
+        print(f"{FILENAME} not found. Starting with default inventory.")
+    return {product_id: dict(item) for product_id, item in DEFAULT_PRODUCT_LIST.items()}
 
-def save_inventory(id, name, price, quantity):
-    product_list={
-        "id": id,
-        "name": name,
-        "price": price,
-        "quantity": quantity
-    }
-    with open("inventory.json", "w") as file:
-        json.dump(product_list, file)
+def save_inventory(product_list, filename=FILENAME):
+    with open(filename, "w") as file:
+        json.dump(product_list, file, indent=4)
 
-product_list = [
-    {
-        "id": "P001",
-        "name": "Laptop",
-        "price": 1200.00,
-        "quantity": 0
-    },
-    {
-        "id": "P002",
-        "name": "Mouse",
-        "price": 25.50,
-        "quantity": 0
-    },
-    {
-        "id": "P003",
-        "name": "Keyboard",
-        "price": 45.00,
-        "quantity": 0
-    },
-    {
-        "id": "P004",
-        "name": "Monitor",
-        "price": 299.99,
-        "quantity": 0
-    }
-]
+def display_menu():
+    print("----------- MENU -----------")
+    print("1. Display All Products")
+    print("2. Add Product")
+    print("3. Update Stock")
+    print("4. Search Product")
+    print("5. Save Inventory")
+    print("6. Exit")
+    print("----------------------------")
+
+def read_input(prompt, cast):
+    while True:
+        try:
+            value = cast(input(prompt))
+            if value < 0:
+                print("Value cannot be negative. Try again.")
+                continue
+            return value
+        except ValueError:
+            print("Invalid number. Try again.")
 
 #Main Code
+def main():
+    print("================================")
+    print("Welcome to the Inventory Management System")
+    print("================================")
+    print()
 
-print("===============================")
-print("Inventory Management System")
-print("===============================")
+    product_list = load_inventory()
+    print()
+    display_menu()
 
 product_list = load_inventory()
 print(f"Loaded Inventory: {product_list}")
 
 while True:
-
-    if load_inventory() is None:
-        print("inventory.json not found.")
-        save_inventory("P001", "Laptop", 1200.00, 0)
-        save_inventory("P002", "Mouse", 25.50, 0)
-        save_inventory("P003", "Keyboard", 45.00, 0)
-        save_inventory("P004", "Monitor", 299.99, 0)
-        product_list = load_inventory()
-        print(f"Initialized Inventory: {product_list}")
-
     user_input = input("Enter Option: ").strip()
 
     if user_input.lower() == "quit":
@@ -75,6 +73,3 @@ while True:
          quantity=int(user_input)
          if quantity < 0:
             print("Error: Negative numbers are not allowed.")
-
-    with open("inventory.json", "w") as f:
-        json.dump(product_list, f)
