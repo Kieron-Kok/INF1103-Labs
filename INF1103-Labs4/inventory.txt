@@ -1,0 +1,1 @@
+{"inventory": 201, "delivery_processed": 3, "total_tax": 20.1, "history": [55, 123, 23]}

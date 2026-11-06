@@ -1,1 +1,32 @@
-{"inventory": 283, "delivery_processed": 2, "total_tax": 28.300000000000004}
+{
+    "P001": {
+        "name": "Laptop",
+        "price": 1200.0,
+        "stock": 20
+    },
+    "P002": {
+        "name": "Mouse",
+        "price": 25.5,
+        "stock": 0
+    },
+    "P003": {
+        "name": "Keyboard",
+        "price": 45.0,
+        "stock": 0
+    },
+    "P004": {
+        "name": "Monitor",
+        "price": 299.99,
+        "stock": 0
+    },
+    "P005": {
+        "name": "Shoe",
+        "price": 200.0,
+        "stock": 1
+    },
+    "6": {
+        "name": "6",
+        "price": 6.0,
+        "stock": 6
+    }
+}

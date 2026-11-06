@@ -22,7 +22,7 @@ class Product:
             raise ValueError("Stock cannot be negative.")
         self.__stock = new_stock
 
-    def display_info(self):
+    def display_information(self):
         print(f"ID: {self.__product_id} | Name: {self.__name} | "
               f"Price: ${self.__price:.2f} | Stock: {self.__stock}")
 
@@ -32,3 +32,16 @@ class Product:
             "price": self.__price,
             "stock": self.__stock
         }
+
+class PhysicalProduct(Product):
+    def __init__(self, product_id, name, price, stock, weight):
+        super().__init__(product_id, name, price, stock)
+        self.__weight = weight
+
+    @property
+    def weight(self):
+        return self.__weight
+
+    def display_information(self):
+        super().display_information()
+        print(f"    Type: Physical | Weight: {self.__weight:.2f} kg")

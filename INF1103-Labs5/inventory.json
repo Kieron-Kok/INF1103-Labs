@@ -1,0 +1,27 @@
+{
+    "P001": {
+        "name": "Laptop",
+        "price": 1200.0,
+        "stock": 0
+    },
+    "P002": {
+        "name": "Mouse",
+        "price": 25.5,
+        "stock": 5
+    },
+    "P003": {
+        "name": "Keyboard",
+        "price": 45.0,
+        "stock": 0
+    },
+    "P004": {
+        "name": "Monitor",
+        "price": 299.99,
+        "stock": 0
+    },
+    "P005": {
+        "name": "Slippers",
+        "price": 10.0,
+        "stock": 23
+    }
+}
