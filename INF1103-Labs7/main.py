@@ -2,6 +2,7 @@ import json
 import os
 from products import PhysicalProduct, DigitalProduct
 from inventory import Inventory
+from can_be_shipped import CanBeShipped
 
 FILENAME = "inventory.json"
 LINE = "-" * 50
@@ -105,6 +106,8 @@ def search_product_menu(inventory):
     print(LINE)
     product.display_information()
     print(product.get_fulfilment_info())
+    if isinstance(product, CanBeShipped):
+        print(f"Shipping Cost: ${product.calculate_shipping_cost():.2f}")
     print(LINE)
 
 def display_menu():
