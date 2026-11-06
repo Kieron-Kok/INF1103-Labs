@@ -18,7 +18,7 @@ class Inventory:
         print("\nCurrent Inventory")
         print("-" * 50)
         for product in self.__products:
-            product.display_info()
+            product.display_information()
         print("-" * 50)
 
     def to_dict(self):

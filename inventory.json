@@ -2,31 +2,36 @@
     "P001": {
         "name": "Laptop",
         "price": 1200.0,
-        "stock": 20
+        "stock": 15,
+        "type": "Physical",
+        "weight": 2.5
     },
     "P002": {
         "name": "Mouse",
         "price": 25.5,
-        "stock": 0
+        "stock": 40,
+        "type": "Physical",
+        "weight": 0.1
     },
     "P003": {
         "name": "Keyboard",
         "price": 45.0,
-        "stock": 0
+        "stock": 25,
+        "type": "Physical",
+        "weight": 0.8
     },
     "P004": {
         "name": "Monitor",
         "price": 299.99,
-        "stock": 0
+        "stock": 10,
+        "type": "Physical",
+        "weight": 5.0
     },
-    "P005": {
-        "name": "Shoe",
-        "price": 200.0,
-        "stock": 1
-    },
-    "6": {
-        "name": "6",
-        "price": 6.0,
-        "stock": 6
+    "D001": {
+        "name": "Antivirus Software",
+        "price": 49.99,
+        "stock": 100,
+        "type": "Digital",
+        "download_size": 850.0
     }
 }

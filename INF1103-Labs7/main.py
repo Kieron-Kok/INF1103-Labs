@@ -1,6 +1,6 @@
 import json
 import os
-from products import Product
+from products import PhysicalProduct, DigitalProduct
 from inventory import Inventory
 
 FILENAME = "inventory.json"
@@ -8,11 +8,21 @@ LINE = "-" * 50
 
 def create_default_inventory():
     inventory = Inventory()
-    inventory.add_product(Product("P001", "Laptop", 1200.00, 15))
-    inventory.add_product(Product("P002", "Mouse", 25.50, 40))
-    inventory.add_product(Product("P003", "Keyboard", 45.00, 25))
-    inventory.add_product(Product("P004", "Monitor", 299.99, 10))
+    inventory.add_product(PhysicalProduct("P001", "Laptop", 1200.00, 15, 2.5))
+    inventory.add_product(PhysicalProduct("P002", "Mouse", 25.50, 40, 0.1))
+    inventory.add_product(PhysicalProduct("P003", "Keyboard", 45.00, 25, 0.8))
+    inventory.add_product(PhysicalProduct("P004", "Monitor", 299.99, 10, 5.0))
+    inventory.add_product(DigitalProduct("D001", "Antivirus Software", 49.99, 100, 850.0))
     return inventory
+
+def create_product_from_dict(product_id, item):
+    if item["type"] == "physical":
+        return PhysicalProduct(product_id, item["name"], item["price"],
+                               item["stock"], item["weight"])
+    if item["type"] == "digital":
+        return DigitalProduct(product_id, item["name"], item["price"],
+                              item["stock"], item["download_size"])
+    raise ValueError(f"Unknown product type: {item['type']}")
 
 def load_inventory():
     if os.path.exists(FILENAME):
@@ -21,12 +31,10 @@ def load_inventory():
                 data = json.load(file)
             inventory = Inventory()
             for product_id, item in data.items():
-                inventory.add_product(
-                    Product(product_id, item["name"], item["price"], item["stock"])
-                )
+                inventory.add_product(create_product_from_dict(product_id, item))
             print("Inventory loaded successfully.")
             return inventory
-        except (json.JSONDecodeError, KeyError):
+        except (json.JSONDecodeError, KeyError, ValueError):
             print(f"{FILENAME} is invalid. Starting with default inventory.")
     else:
         print(f"{FILENAME} not found. Starting with default inventory.")
@@ -49,12 +57,26 @@ def read_input(prompt, cast):
 
 def add_product_menu(inventory):
     print("\nAdd New Product")
+    print("1. Physical Product")
+    print("2. Digital Product")
+    product_type = input("Choose product type (1-2): ").strip()
+    if product_type not in ("1", "2"):
+        print("Invalid product type.")
+        return
+
     product_id = input("Product ID: ").strip().upper()
     name = input("Product Name: ").strip()
     price = read_input("Price: ", float)
     stock = read_input("Stock Quantity: ", int)
 
-    if inventory.add_product(Product(product_id, name, price, stock)):
+    if product_type == "1":
+        weight = read_input("Weight (kg): ", float)
+        product = PhysicalProduct(product_id, name, price, stock, weight)
+    else:
+        download_size = read_input("Download Size (MB): ", float)
+        product = DigitalProduct(product_id, name, price, stock, download_size)
+
+    if inventory.add_product(product):
         print("\nProduct added successfully!")
     else:
         print("Product ID already exists.")
