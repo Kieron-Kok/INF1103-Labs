@@ -104,6 +104,7 @@ def search_product_menu(inventory):
     print("\nProduct Found")
     print(LINE)
     product.display_information()
+    print(product.get_fulfilment_info())
     print(LINE)
 
 def display_menu():
