@@ -1,5 +1,6 @@
 import json
 import os
+from typing import TypeVar
 from products import Product, PhysicalProduct, DigitalProduct
 from inventory import Inventory
 from can_be_shipped import CanBeShipped
@@ -7,6 +8,7 @@ from supplier import Supplier
 
 FILENAME = "inventory.json"
 LINE = "-" * 50
+Number = TypeVar("Number", int, float)
 
 def create_default_inventory() -> Inventory:
     tech_supplier = Supplier("S001", "TechWorld Pte Ltd", "sales@techworld.example")
@@ -59,7 +61,7 @@ def save_inventory(inventory: Inventory, filename: str = FILENAME) -> None:
     with open(filename, "w") as file:
         json.dump(inventory.to_dict(), file, indent=4)
 
-def read_input(prompt: str, cast: type) -> int | float:
+def read_input(prompt: str, cast: type[Number]) -> Number:
     while True:
         try:
             value = cast(input(prompt))
@@ -94,6 +96,7 @@ def add_product_menu(inventory: Inventory) -> None:
     price = read_input("Price: ", float)
     stock = read_input("Stock Quantity: ", int)
     supplier = ask_for_supplier(inventory)
+    product: Product
 
     if product_type == "1":
         weight = read_input("Weight (kg): ", float)
