@@ -62,3 +62,26 @@ print("\nAfter removing the software line from Order O001:")
 order_1.display_order()
 print("Software product still exists:")
 software.display_information()
+
+# ---------- Section 6 & 7: LSP and Polymorphism ----------
+def show_product_details(product: Product) -> None:
+    product.display_information()
+    print(product.get_fulfilment_info())
+
+
+print("\n=== Test 4: LSP - one function works for both product types ===")
+show_product_details(laptop)
+show_product_details(software)
+
+print("\n=== Test 5: LSP - update_stock() means the same for both ===")
+laptop.update_stock(20)
+software.update_stock(500)
+print(f"Laptop stock: {laptop.stock} | Software stock: {software.stock}")
+
+print("\n=== Test 6: Polymorphism - one loop, no isinstance() ===")
+mixed_inventory = Inventory()
+mixed_inventory.add_product(laptop)
+mixed_inventory.add_product(software)
+for product in mixed_inventory.products:   # Predict first: what will each print?
+    product.display_information()
+    print(product.get_fulfilment_info())
