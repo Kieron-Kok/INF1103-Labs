@@ -22,7 +22,7 @@ class Product:
             raise ValueError("Stock cannot be negative.")
         self.__stock = new_stock
 
-    def display_info(self):
+    def display_information(self):
         print(f"ID: {self.__product_id} | Name: {self.__name} | "
               f"Price: ${self.__price:.2f} | Stock: {self.__stock}")
 
