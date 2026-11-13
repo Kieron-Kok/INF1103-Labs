@@ -3,35 +3,60 @@
         "name": "Laptop",
         "price": 1200.0,
         "stock": 15,
-        "type": "Physical",
+        "supplier": {
+            "supplier_id": "S001",
+            "name": "TechWorld Pte Ltd",
+            "contact_email": "sales@techworld.example"
+        },
+        "type": "physical",
         "weight": 2.5
     },
     "P002": {
         "name": "Mouse",
         "price": 25.5,
         "stock": 40,
-        "type": "Physical",
+        "supplier": {
+            "supplier_id": "S001",
+            "name": "TechWorld Pte Ltd",
+            "contact_email": "sales@techworld.example"
+        },
+        "type": "physical",
         "weight": 0.1
     },
     "P003": {
         "name": "Keyboard",
         "price": 45.0,
         "stock": 25,
-        "type": "Physical",
+        "supplier": {
+            "supplier_id": "S001",
+            "name": "TechWorld Pte Ltd",
+            "contact_email": "sales@techworld.example"
+        },
+        "type": "physical",
         "weight": 0.8
     },
     "P004": {
         "name": "Monitor",
         "price": 299.99,
         "stock": 10,
-        "type": "Physical",
+        "supplier": {
+            "supplier_id": "S001",
+            "name": "TechWorld Pte Ltd",
+            "contact_email": "sales@techworld.example"
+        },
+        "type": "physical",
         "weight": 5.0
     },
     "D001": {
         "name": "Antivirus Software",
         "price": 49.99,
         "stock": 100,
-        "type": "Digital",
+        "supplier": {
+            "supplier_id": "S002",
+            "name": "SoftHub",
+            "contact_email": "support@softhub.example"
+        },
+        "type": "digital",
         "download_size": 850.0
     }
 }

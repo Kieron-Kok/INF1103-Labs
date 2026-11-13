@@ -1,38 +1,52 @@
 import json
 import os
-from products import PhysicalProduct, DigitalProduct
+from products import Product, PhysicalProduct, DigitalProduct
 from inventory import Inventory
 from can_be_shipped import CanBeShipped
+from supplier import Supplier
 
 FILENAME = "inventory.json"
 LINE = "-" * 50
 
-def create_default_inventory():
+def create_default_inventory() -> Inventory:
+    tech_supplier = Supplier("S001", "TechWorld Pte Ltd", "sales@techworld.example")
+    soft_supplier = Supplier("S002", "SoftHub", "support@softhub.example")
+
     inventory = Inventory()
-    inventory.add_product(PhysicalProduct("P001", "Laptop", 1200.00, 15, 2.5))
-    inventory.add_product(PhysicalProduct("P002", "Mouse", 25.50, 40, 0.1))
-    inventory.add_product(PhysicalProduct("P003", "Keyboard", 45.00, 25, 0.8))
-    inventory.add_product(PhysicalProduct("P004", "Monitor", 299.99, 10, 5.0))
-    inventory.add_product(DigitalProduct("D001", "Antivirus Software", 49.99, 100, 850.0))
+    inventory.add_product(PhysicalProduct("P001", "Laptop", 1200.00, 15, tech_supplier, 2.5))
+    inventory.add_product(PhysicalProduct("P002", "Mouse", 25.50, 40, tech_supplier, 0.1))
+    inventory.add_product(PhysicalProduct("P003", "Keyboard", 45.00, 25, tech_supplier, 0.8))
+    inventory.add_product(PhysicalProduct("P004", "Monitor", 299.99, 10, tech_supplier, 5.0))
+    inventory.add_product(DigitalProduct("D001", "Antivirus Software", 49.99, 100, soft_supplier, 850.0))
     return inventory
 
-def create_product_from_dict(product_id, item):
+def get_supplier(data: dict, suppliers: dict[str, Supplier]) -> Supplier:
+    # Reuse the same Supplier object when several products share one supplier
+    supplier_id = data["supplier_id"]
+    if supplier_id not in suppliers:
+        suppliers[supplier_id] = Supplier(supplier_id, data["name"], data["contact_email"])
+    return suppliers[supplier_id]
+
+def create_product_from_dict(product_id: str, item: dict,
+                             suppliers: dict[str, Supplier]) -> Product:
+    supplier = get_supplier(item["supplier"], suppliers)
     if item["type"] == "physical":
         return PhysicalProduct(product_id, item["name"], item["price"],
-                               item["stock"], item["weight"])
+                               item["stock"], supplier, item["weight"])
     if item["type"] == "digital":
         return DigitalProduct(product_id, item["name"], item["price"],
-                              item["stock"], item["download_size"])
+                              item["stock"], supplier, item["download_size"])
     raise ValueError(f"Unknown product type: {item['type']}")
 
-def load_inventory():
+def load_inventory() -> Inventory:
     if os.path.exists(FILENAME):
         try:
             with open(FILENAME, "r") as file:
                 data = json.load(file)
             inventory = Inventory()
+            suppliers: dict[str, Supplier] = {}
             for product_id, item in data.items():
-                inventory.add_product(create_product_from_dict(product_id, item))
+                inventory.add_product(create_product_from_dict(product_id, item, suppliers))
             print("Inventory loaded successfully.")
             return inventory
         except (json.JSONDecodeError, KeyError, ValueError):
@@ -41,11 +55,11 @@ def load_inventory():
         print(f"{FILENAME} not found. Starting with default inventory.")
     return create_default_inventory()
 
-def save_inventory(inventory, filename=FILENAME):
+def save_inventory(inventory: Inventory, filename: str = FILENAME) -> None:
     with open(filename, "w") as file:
         json.dump(inventory.to_dict(), file, indent=4)
 
-def read_input(prompt, cast):
+def read_input(prompt: str, cast: type) -> int | float:
     while True:
         try:
             value = cast(input(prompt))
@@ -56,7 +70,17 @@ def read_input(prompt, cast):
         except ValueError:
             print("Invalid number. Try again.")
 
-def add_product_menu(inventory):
+def ask_for_supplier(inventory: Inventory) -> Supplier:
+    supplier_id = input("Supplier ID: ").strip().upper()
+    for product in inventory.products:
+        if product.supplier.supplier_id == supplier_id:
+            print(f"Using existing supplier: {product.supplier.name}")
+            return product.supplier
+    name = input("Supplier Name: ").strip()
+    contact_email = input("Supplier Email: ").strip()
+    return Supplier(supplier_id, name, contact_email)
+
+def add_product_menu(inventory: Inventory) -> None:
     print("\nAdd New Product")
     print("1. Physical Product")
     print("2. Digital Product")
@@ -69,20 +93,21 @@ def add_product_menu(inventory):
     name = input("Product Name: ").strip()
     price = read_input("Price: ", float)
     stock = read_input("Stock Quantity: ", int)
+    supplier = ask_for_supplier(inventory)
 
     if product_type == "1":
         weight = read_input("Weight (kg): ", float)
-        product = PhysicalProduct(product_id, name, price, stock, weight)
+        product = PhysicalProduct(product_id, name, price, stock, supplier, weight)
     else:
         download_size = read_input("Download Size (MB): ", float)
-        product = DigitalProduct(product_id, name, price, stock, download_size)
+        product = DigitalProduct(product_id, name, price, stock, supplier, download_size)
 
     if inventory.add_product(product):
         print("\nProduct added successfully!")
     else:
         print("Product ID already exists.")
 
-def update_stock_menu(inventory):
+def update_stock_menu(inventory: Inventory) -> None:
     print("\nUpdate Stock")
     product_id = input("Enter Product ID: ").strip().upper()
     product = inventory.find_product(product_id)
@@ -95,7 +120,7 @@ def update_stock_menu(inventory):
     product.update_stock(read_input("\nNew Stock Quantity: ", int))
     print("\nStock updated successfully!")
 
-def search_product_menu(inventory):
+def search_product_menu(inventory: Inventory) -> None:
     print("\nSearch Product")
     product_id = input("Enter Product ID: ").strip().upper()
     product = inventory.find_product(product_id)
@@ -105,12 +130,13 @@ def search_product_menu(inventory):
     print("\nProduct Found")
     print(LINE)
     product.display_information()
+    product.supplier.display_information()
     print(product.get_fulfilment_info())
     if isinstance(product, CanBeShipped):
         print(f"Shipping Cost: ${product.calculate_shipping_cost():.2f}")
     print(LINE)
 
-def display_menu():
+def display_menu() -> None:
     print("----------- MENU -----------")
     print("1. Display All Products")
     print("2. Add Product")
@@ -120,7 +146,7 @@ def display_menu():
     print("6. Exit")
     print("----------------------------")
 
-def main():
+def main() -> None:
     print("================================")
     print("Welcome to the Inventory Management System")
     print("================================")
