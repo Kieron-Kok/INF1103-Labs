@@ -1,0 +1,9 @@
+Step 2: Each product still can display its supplier information as "del supplier" removes the variable name whereas the main object is still available for the products to reference to.
+
+Step 3: The product will still work after it is removed from Inventory A as the main object still exists whereas the Inventory A just calls the product from the object itself.
+
+Step 4: There will be 2 OrderLine objects but only 1 Product object because the Orderlines only refer to the product, not copy it twice.
+
+Diagnose: Yes it violates LSP because Product ensures that every product supports update_stock() but the DigitalProduct will raise an error so any code that uses the function will break when given a DigitalProduct. I would remove the last line as update_stock will already cover the amount of stock for DigitalProducts so the error will be handled the same as the Physical Product without any new codes
+
+Step 5: The physical products will print the "this requires physical shipping" message whereas the Digital products will print the "Delivered digitally" message.
