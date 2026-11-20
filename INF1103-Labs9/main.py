@@ -69,6 +69,18 @@ def read_input(prompt: str, cast: type[Number]) -> Number:
         except ValueError:
             print("Invalid number. Try again.")
 
+def get_positive_float(prompt: str) -> float:
+    # Keeps asking until the user gives a number greater than zero
+    while True:
+        try:
+            value = float(input(prompt))
+            if value <= 0:
+                print("Please enter a number greater than zero.")
+                continue
+            return value
+        except ValueError:
+            print("Please enter a valid number, e.g. 12.50")
+
 def ask_for_supplier(inventory: Inventory) -> Supplier:
     supplier_id = input("Supplier ID: ").strip().upper()
     for product in inventory.products:
@@ -90,10 +102,10 @@ def add_product_menu(inventory: Inventory) -> None:
 
     product_id = input("Product ID: ").strip().upper()
     name = input("Product Name: ").strip()
-    price = read_input("Price: ", float)
+    price = get_positive_float("Price: ")
     stock = read_input("Stock Quantity: ", int)
     supplier = ask_for_supplier(inventory)
-    
+
     if product_type == "1":
         detail = read_input("Weight (kg): ", float)
         product = ProductFactory.create("physical", product_id, name, price, stock, supplier, detail)
