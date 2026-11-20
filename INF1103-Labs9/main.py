@@ -1,5 +1,6 @@
 import json
 import os
+import csv
 from typing import TypeVar
 from products import Product
 from product_factory import ProductFactory
@@ -8,6 +9,7 @@ from can_be_shipped import CanBeShipped
 from supplier import Supplier
 
 FILENAME = "inventory.json"
+PRODUCTS_CSV = "products.csv"
 LINE = "-" * 50
 Number = TypeVar("Number", int, float)
 
@@ -143,6 +145,38 @@ def search_product_menu(inventory: Inventory) -> None:
         print(f"Shipping Cost: ${product.calculate_shipping_cost():.2f}")
     print(LINE)
 
+def load_products(path: str, inventory: Inventory, supplier: Supplier) -> None:
+    try:
+        file = open(path, newline="")
+    except FileNotFoundError:
+        print(f"Products file not found: {path}")
+    else:
+        loaded = 0
+        with file:
+            reader = csv.reader(file)
+            next(reader, None)   # skip the header row
+            for row_number, row in enumerate(reader, start=2):
+                try:
+                    product_type, product_id, name, price, stock = row
+                    product = ProductFactory.create(product_type, product_id, name,
+                                                    float(price), int(stock), supplier)
+                except ValueError as error:
+                    # one bad row is reported and skipped, the rest keep loading
+                    print(f"Skipped row {row_number} {row}: {error}")
+                    continue
+                if inventory.add_product(product):
+                    loaded += 1
+                else:
+                    print(f"Skipped row {row_number}: product ID {product_id} already exists.")
+        print(f"{loaded} products loaded.")
+    finally:
+        print("Load attempt finished.")
+
+def load_products_menu(inventory: Inventory) -> None:
+    print(f"\nLoad Products from {PRODUCTS_CSV}")
+    supplier = ask_for_supplier(inventory)
+    load_products(PRODUCTS_CSV, inventory, supplier)
+
 def display_menu() -> None:
     print("----------- MENU -----------")
     print("1. Display All Products")
@@ -150,7 +184,8 @@ def display_menu() -> None:
     print("3. Update Stock")
     print("4. Search Product")
     print("5. Save Inventory")
-    print("6. Exit")
+    print("6. Load Products from CSV")
+    print("7. Exit")
     print("----------------------------")
 
 def main() -> None:
@@ -179,6 +214,8 @@ def main() -> None:
             save_inventory(inventory)
             print(f"Inventory saved successfully to {FILENAME}.")
         elif choice == "6":
+            load_products_menu(inventory)
+        elif choice == "7":
             print("\nSaving inventory before exit...")
             save_inventory(inventory)
             print("Inventory saved successfully.")
@@ -186,7 +223,7 @@ def main() -> None:
             print("Program terminated.")
             break
         else:
-            print("Invalid option. Please choose 1-6.")
+            print("Invalid option. Please choose 1-7.")
 
 
 if __name__ == "__main__":
