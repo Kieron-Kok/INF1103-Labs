@@ -1,7 +1,8 @@
 import json
 import os
 from typing import TypeVar
-from products import Product, PhysicalProduct, DigitalProduct
+from products import Product
+from product_factory import ProductFactory
 from inventory import Inventory
 from can_be_shipped import CanBeShipped
 from supplier import Supplier
@@ -15,11 +16,11 @@ def create_default_inventory() -> Inventory:
     soft_supplier = Supplier("S002", "SoftHub", "support@softhub.example")
 
     inventory = Inventory()
-    inventory.add_product(PhysicalProduct("P001", "Laptop", 1200.00, 15, tech_supplier, 2.5))
-    inventory.add_product(PhysicalProduct("P002", "Mouse", 25.50, 40, tech_supplier, 0.1))
-    inventory.add_product(PhysicalProduct("P003", "Keyboard", 45.00, 25, tech_supplier, 0.8))
-    inventory.add_product(PhysicalProduct("P004", "Monitor", 299.99, 10, tech_supplier, 5.0))
-    inventory.add_product(DigitalProduct("D001", "Antivirus Software", 49.99, 100, soft_supplier, 850.0))
+    inventory.add_product(ProductFactory.create("physical", "P001", "Laptop", 1200.00, 15, tech_supplier, 2.5))
+    inventory.add_product(ProductFactory.create("physical", "P002", "Mouse", 25.50, 40, tech_supplier, 0.1))
+    inventory.add_product(ProductFactory.create("physical", "P003", "Keyboard", 45.00, 25, tech_supplier, 0.8))
+    inventory.add_product(ProductFactory.create("physical", "P004", "Monitor", 299.99, 10, tech_supplier, 5.0))
+    inventory.add_product(ProductFactory.create("digital", "D001", "Antivirus Software", 49.99, 100, soft_supplier, 850.0))
     return inventory
 
 def get_supplier(data: dict, suppliers: dict[str, Supplier]) -> Supplier:
@@ -32,13 +33,9 @@ def get_supplier(data: dict, suppliers: dict[str, Supplier]) -> Supplier:
 def create_product_from_dict(product_id: str, item: dict,
                              suppliers: dict[str, Supplier]) -> Product:
     supplier = get_supplier(item["supplier"], suppliers)
-    if item["type"] == "physical":
-        return PhysicalProduct(product_id, item["name"], item["price"],
-                               item["stock"], supplier, item["weight"])
-    if item["type"] == "digital":
-        return DigitalProduct(product_id, item["name"], item["price"],
-                              item["stock"], supplier, item["download_size"])
-    raise ValueError(f"Unknown product type: {item['type']}")
+    detail = item.get("weight", item.get("download_size", 0.0))
+    return ProductFactory.create(item["type"], product_id, item["name"], item["price"],
+                                 item["stock"], supplier, detail)
 
 def load_inventory() -> Inventory:
     if os.path.exists(FILENAME):
@@ -96,19 +93,14 @@ def add_product_menu(inventory: Inventory) -> None:
     price = read_input("Price: ", float)
     stock = read_input("Stock Quantity: ", int)
     supplier = ask_for_supplier(inventory)
-    product: Product
-
+    
     if product_type == "1":
-        weight = read_input("Weight (kg): ", float)
-        product = PhysicalProduct(product_id, name, price, stock, supplier, weight)
+        detail = read_input("Weight (kg): ", float)
+        product = ProductFactory.create("physical", product_id, name, price, stock, supplier, detail)
     else:
-        download_size = read_input("Download Size (MB): ", float)
-        product = DigitalProduct(product_id, name, price, stock, supplier, download_size)
+        detail = read_input("Download Size (MB): ", float)
+        product = ProductFactory.create("digital", product_id, name, price, stock, supplier, detail)
 
-    if inventory.add_product(product):
-        print("\nProduct added successfully!")
-    else:
-        print("Product ID already exists.")
 
 def update_stock_menu(inventory: Inventory) -> None:
     print("\nUpdate Stock")
