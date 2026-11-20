@@ -1,0 +1,53 @@
+1.5 Diagnose
+(1) if/elif choosing behaviour: create_product_from_dict() in main.py checks item["type"] == "physical" / "digital", and add_product_menu() checks product_type == "1" / "2". The main menu loop is also a big if/elif.
+(2) Direct product creation: create_default_inventory() (5 times), create_product_from_dict() (2 times), add_product_menu() (2 times), and test_lab8.py.
+(3) Possible crash: OrderLine accepted a quantity of 0 or a negative number, and add_product_menu() let the price be 0 because read_input only blocked negative numbers. save_inventory() also opens the file with no try/except.
+
+2.1 Student discount without Strategy
+Prediction: The Order class and its calculate_total() method would have to change, because I would need to add another elif for "student" inside it. Every new discount means editing Order again, so it breaks OCP.
+With Strategy: Order does not change at all. I only add a new StudentDiscount class that inherits from DiscountStrategy and has its own apply() method.
+What happened: Correct. I added StudentDiscount at the bottom of discount.py and order.py was not touched in that commit.
+
+2.3 Order of 250 with BulkDiscount(200, 20), then set_discount(PercentageDiscount(10))
+Prediction: 250 is >= 200 so the bulk discount takes 20 off, so 230.00. After set_discount(PercentageDiscount(10)) it is 10% off the original 250 (not 230), so 225.00, because calculate_total() adds up the lines again and only uses the new strategy.
+What happened: 230.0 and then 225.0, matched my prediction.
+
+2.4 Relationship between Order and DiscountStrategy
+Prediction: Association (or aggregation at most). The discount is not part of the order, it is something the order uses to work out the total. The strategy object is passed in from outside, it can be swapped with set_discount() and two orders can share the same PercentageDiscount(10) object, so it is not composition.
+Multiplicity: Order 0..* ---- 1 DiscountStrategy (each order always has exactly one strategy because it defaults to NoDiscount(), and one strategy can be used by many orders).
+What happened: Checked my code, Order stores self.__discount which is passed in, and two orders can be given the same object. Matches.
+
+3.2 ProductFactory.create("service", ...)
+Prediction: It goes past the "physical" and "digital" checks into the else and the line raise ValueError(f"Unknown product type: {product_type}") raises the error. If nothing catches it the program crashes and shows a traceback ending with ValueError: Unknown product type: service.
+What happened: Correct, traceback pointed to line 16 of product_factory.py (the raise line). In load_products() it is caught by except ValueError so the row is just skipped.
+
+3.3 Adding a BundleProduct
+Prediction: Before the factory I would need to change about 3 places: create_product_from_dict(), add_product_menu() and anywhere else products are created by type (like the test file). After the factory only 1 place needs to change, the create() method in ProductFactory (plus writing the new BundleProduct class itself).
+The factory still breaks OCP because I need to add another elif inside create() for "bundle". This is acceptable because the change is in one place only, the rest of the program only knows about Product, and for a small app using a more complicated design (like registering types) would be over-engineering.
+
+4. Should DigitalProduct skip the stock rule?
+Prediction: No. Under LSP a child class must be usable anywhere the parent is used, so it cannot weaken the rules of Product. If Product promises stock is never negative then DigitalProduct must keep that promise, otherwise code that trusts Product would break when given a DigitalProduct. That is why the check is in Product's __init__ and update_stock(), so both children inherit it.
+
+5.1 User enters abc, then -5, then 12.50
+Prediction:
+  abc   -> float("abc") raises ValueError -> prints "Please enter a valid number, e.g. 12.50" and asks again
+  -5    -> converts fine but fails the <= 0 check -> prints "Please enter a number greater than zero." and asks again
+  12.50 -> passes, nothing printed, returns 12.5
+What happened: Exactly the same, it returned 12.5 (my test checks this with mocked input).
+
+5.2 Loading products.csv
+Prediction: 3 products load (Desk Lamp, Photo Editor, Monitor Stand). Service fails because the factory does not know "service", and Office Chair fails because float("abc") raises ValueError. I thought the order would be:
+  3 products loaded.
+  Skipped row ... service ...
+  Skipped row ... abc ...
+  Load attempt finished.
+What happened: 3 products loaded was correct, but the order was different:
+  Skipped row 4 ['service', 'S001', 'Installation', '30.00', '5']: Unknown product type: service
+  Skipped row 5 ['physical', 'P002', 'Office Chair', 'abc', '3']: could not convert string to float: 'abc'
+  3 products loaded.
+  Load attempt finished.
+What I changed: My assumption was wrong - the skipped messages print while the rows are being read inside the loop, and the "loaded" count only prints after the loop has finished, so the skip messages come first.
+
+Renamed products.csv:
+Prediction: open() raises FileNotFoundError, so except runs and prints "Products file not found: products.csv". else does NOT run because there was an exception. finally ALWAYS runs so "Load attempt finished." still prints.
+What happened: Correct - only except and finally ran, and the program did not crash.
